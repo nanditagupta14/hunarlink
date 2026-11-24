@@ -1,0 +1,45 @@
+# Secrets & Environment Files
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python Cache & Virtual Environments
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Not part of the static demo (React SPA + FastAPI backend live upstream)
+frontend/node_modules/
+__pycache__/
+*.pyc
+.env
+
+# local git credentials (never commit)
+.git-credentials
+
+# ---------------------------------------------------------------- build output
+# app/ is the Vite source; the built site is committed at the repo root
+# (index.html, 404.html, assets/) because GitHub Pages serves from there.
+node_modules/
+app/node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Vite writes hashed bundles into the root assets/ folder; the live ones are
+# referenced by index.html, older ones are leftovers from previous builds.
+assets/index-*.js.map
+assets/index-*.css.map
+
+# ------------------------------------------------------------ editor / OS noise
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.vscode/
+.idea/

@@ -1,0 +1,5 @@
+# The verification tools drive a real browser, so they need Playwright and
+# its Chromium build:
+#   pip install -r tools/requirements.txt
+#   playwright install chromium
+playwright>=1.40

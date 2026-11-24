@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HunarLink — Valley Craft Guild</title>
+  <script>
+    /* GitHub Pages serves this file for any path it cannot resolve, at any
+       depth. The React app now lives at the site root, so the job here is to
+       hand the requested route back to it instead of showing a 404.
+
+       Strategy
+         1. Capture the path the visitor asked for (minus the /hunarlink/
+            prefix, which is the deployment base, not the route) plus its
+            query and hash.
+         2. Park it in sessionStorage and bounce to the app root.
+         3. SpaRedirect restores the route once the router has mounted.
+
+       Assets are excluded: a missing .js/.css/.png must really 404 rather than
+       be turned into an HTML page, which is exactly the failure that makes a
+       broken bundle look like a blank screen. */
+    (function () {
+      var BASE = '/hunarlink/';
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+
+      if (path.indexOf(BASE) === 0) {
+        path = path.slice(BASE.length);
+      }
+
+      var looksLikeAsset = /\.(js|mjs|css|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|otf|map|json|mp4|webm|mp3|pdf|txt|xml)$/i.test(path);
+
+      if (!looksLikeAsset) {
+        try {
+          window.sessionStorage.setItem('hunar_spa_redirect', path + search + hash);
+        } catch (e) {
+          /* storage blocked — fall through to the root, losing the route */
+        }
+        window.location.replace(BASE);
+        return;
+      }
+
+      /* A missing file: say so plainly and keep it out of the app. */
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.setAttribute('data-missing-asset', path);
+      });
+    })();
+  </script>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+           font-family: Georgia, 'Times New Roman', serif; background: #0B2B1D; color: #F7F3E8; text-align: center; }
+    .wrap { padding: 48px 24px; max-width: 560px; }
+    .code { font-size: 4.6rem; letter-spacing: 2px; color: #D9A441; margin: 0 0 8px; }
+    h1 { font-size: 1.6rem; margin: 0 0 14px; font-weight: 600; }
+    p { font-size: 0.95rem; color: #C9D8CE; line-height: 1.7; margin: 0 0 28px; }
+    a.btn { display: inline-block; padding: 12px 26px; background: #D9A441; color: #0B2B1D;
+            border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+    a.btn:hover { filter: brightness(1.08); }
+    .kicker { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: #9AB2A4; margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker">HunarLink &bull; Valley Craft Guild</div>
+    <div class="code">404</div>
+    <h1>This heirloom page isn't in our registry</h1>
+    <p>The page you're looking for was moved or never existed. Explore our GI-certified
+       Kashmiri Pashmina, Walnut Woodcarving, Papier-M&acirc;ch&eacute; and Silk Rug collections instead.</p>
+    <a class="btn" href="/hunarlink/">&larr; Back to the Marketplace</a>
+  </div>
+</body>
+</html>

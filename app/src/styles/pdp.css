@@ -1,0 +1,867 @@
+
+    /* ==========================================================================
+       Dedicated Flipkart-Style Product Detail Page (PDP) Layout
+       ========================================================================== */
+    .pdp-page {
+      background-color: #FAF8F3;
+      min-height: 100vh;
+      color: #112A20;
+    }
+
+    /* Breadcrumbs Bar */
+    .pdp-breadcrumb-bar {
+      background-color: #FAF7F2;
+      border-bottom: 1px solid #ECE5D8;
+      padding: 12px 0;
+      font-size: 0.76rem;
+      color: #5D7065;
+    }
+
+    .pdp-breadcrumb-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pdp-bc-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pdp-bc-left a {
+      color: #5D7065;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .pdp-bc-left a:hover {
+      color: #112A20;
+      text-decoration: underline;
+    }
+
+    .pdp-back-arrow {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #112A20 !important;
+      margin-right: 4px;
+      text-decoration: none !important;
+    }
+
+    .pdp-bc-current {
+      font-weight: 700;
+      color: #112A20;
+    }
+
+    .pdp-bc-right {
+      font-weight: 700;
+      color: #A37926;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.74rem;
+    }
+
+    /* Main Showcase Grid */
+    .pdp-showcase-container {
+      width: 100%;
+      max-width: min(1440px, 95vw);
+      margin: clamp(18px, 3vw, 38px) auto;
+      padding: 0 clamp(12px, 2.4vw, 28px);
+    }
+
+    .pdp-showcase-grid {
+      display: grid;
+      /* the gallery takes a little more of the row than it used to (1.05/1)
+         so the floating magnifier has room to open beside the stage instead of
+         falling back to magnifying in-frame */
+      grid-template-columns: 1.12fr 1fr;
+      gap: clamp(24px, 3.2vw, 44px);
+      align-items: start;
+    }
+
+    /* Left Gallery Column */
+    .pdp-gallery-col {
+      position: sticky;
+      top: 96px;
+    }
+
+    .pdp-stage-box {
+      position: relative;
+      background-color: #EFECE6;
+      border: 1px solid #E2DCD0;
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      box-shadow: 0 8px 24px rgba(17, 42, 32, 0.05);
+      cursor: crosshair;
+    }
+
+    .pdp-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+      transition: transform 0.25s ease-out;
+    }
+
+    /* ---- Hover zoom (Amazon-style lens) ------------------------------------
+       The stage keeps its layout; a magnifier floats beside it while the
+       cursor is over the image. Two details make it feel native rather than
+       bolted on:
+         - it only opens if there is room to the right of the stage, otherwise
+           it flips to the left;
+         - the magnification is capped by the source resolution, so it never
+           renders a mushy upscale.
+       Touch devices get a tap-to-open fallback instead (no hover exists). */
+    .pdp-stage-box.zooming {
+      cursor: crosshair;
+    }
+
+    .pdp-zoom-lens {
+      position: fixed;
+      top: 0;
+      left: 0;
+      /* the exact box is set inline by ProductGallery's panelSize(); this is
+         only the fallback before the first measurement */
+      width: 480px;
+      height: 480px;
+      border-radius: 12px;
+      border: 1px solid #DCD5C6;
+      background-color: #FFFFFF;
+      background-repeat: no-repeat;
+      background-size: 0 0;
+      box-shadow:
+        0 1px 2px rgba(17, 42, 32, 0.10),
+        0 12px 36px -8px rgba(17, 42, 32, 0.28);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateZ(0);
+      transition: opacity 140ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      z-index: 400;
+      will-change: opacity, background-position;
+    }
+
+    .pdp-zoom-lens.is-open {
+      opacity: 1;
+    }
+
+    /* the little "glass" caption so the panel explains itself */
+    .pdp-zoom-lens::after {
+      content: "Hover to inspect";
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(17, 42, 32, 0.82);
+      color: #F7F5EE;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      /* was 0.9 — that lifted --text-500 to ~4.24:1 on white, under AA */
+      opacity: 1;
+    }
+
+    /* the outline that shows WHICH patch of the photo is magnified */
+    .pdp-zoom-marker {
+      position: absolute;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 0 0 1.5px rgba(17, 42, 32, 0.55),
+        inset 0 0 0 1px rgba(17, 42, 32, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 140ms ease;
+      z-index: 3;
+      border-radius: 2px;
+    }
+
+    .pdp-stage-box.zooming .pdp-zoom-marker {
+      opacity: 1;
+    }
+
+    /* ---- in-frame mode ------------------------------------------------
+       When no genuinely clear space exists beside the stage (which is the
+       case at every normal desktop width, because the details column fills
+       the rest of the row), the photo magnifies inside its own frame instead
+       of floating a panel over the price. Nothing on the page is ever
+       occluded, which is the whole point of the interaction. */
+    .pdp-stage-box.is-inframe {
+      cursor: zoom-in;
+    }
+
+    .pdp-stage-box.is-inframe .pdp-hero-img {
+      transform: scale(var(--pdp-zoom, 1));
+      transform-origin: var(--pdp-origin-x, 50%) var(--pdp-origin-y, 50%);
+      transition: transform 160ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                  object-position 0s;
+      will-change: transform;
+    }
+
+    .pdp-stage-box.is-inframe .pdp-zoom-marker {
+      opacity: 0;
+    }
+
+    /* a quiet magnification readout so the gesture explains itself */
+    .pdp-zoom-badge {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: rgba(17, 42, 32, 0.86);
+      color: #F7F5EE;
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .pdp-stage-box.is-inframe.zooming .pdp-zoom-badge {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* the bottom cluster caption would fight the badge — step it aside */
+    .pdp-stage-box.is-inframe.zooming .pdp-stage-bottom-pill {
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+
+    /* On a touch-only device the floating panel and the patch marker make no
+       sense, so they are hidden. The in-frame magnify is NOT hidden: a tap
+       pins it, which is the only way a phone or tablet can inspect detail.
+       (Suppressing everything behind (hover: none) is what made the feature
+       invisible on hybrids that do have a trackpad.) */
+    @media (hover: none) {
+      .pdp-zoom-lens,
+      .pdp-zoom-marker {
+        display: none !important;
+      }
+      .pdp-stage-box {
+        cursor: zoom-in;
+      }
+    }
+
+    /* reduced motion: no fades, just appear */
+    @media (prefers-reduced-motion: reduce) {
+      .pdp-zoom-lens,
+      .pdp-zoom-marker {
+        transition: none !important;
+      }
+    }
+
+    .pdp-stage-top-pill {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(17, 42, 32, 0.15);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #112A20;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .pdp-stage-wish-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(17, 42, 32, 0.12);
+      color: #112A20;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .pdp-stage-wish-btn:hover {
+      transform: scale(1.08);
+      color: #C0392B;
+    }
+
+    .pdp-stage-wish-btn.wishlisted {
+      color: #C0392B;
+      background-color: #FFFFFF;
+    }
+
+    .pdp-stage-bottom-pill {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(11, 30, 22, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 6px 14px;
+      border-radius: 999px;
+      z-index: 2;
+    }
+
+    /* 5 Thumbnails Strip */
+    .pdp-thumbnails-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pdp-thumb-card {
+      border: 2px solid #E5DFD4;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pdp-thumb-card:hover {
+      border-color: #8C9F93;
+      transform: translateY(-2px);
+    }
+
+    .pdp-thumb-card.active {
+      border-color: #112A20;
+      box-shadow: 0 0 0 1px #112A20, 0 4px 12px rgba(17, 42, 32, 0.12);
+    }
+
+    .pdp-thumb-img {
+      width: 100%;
+      height: 72px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pdp-thumb-caption {
+      background-color: #112A20;
+      color: #FFFFFF;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+      padding: 3px 2px;
+    }
+
+    /* Right Details Column */
+    .pdp-details-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pdp-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .pdp-badge-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .pdp-badge-pill.gi {
+      background-color: #EBF4EE;
+      border: 1px solid #C4DEC8;
+      color: #19582E;
+    }
+
+    .pdp-badge-pill.carved {
+      background-color: #F5F2EB;
+      border: 1px solid #E2DCD0;
+      color: #4D473A;
+    }
+
+    .pdp-badge-pill.valley {
+      background-color: #FAF4E6;
+      border: 1px solid #E8D7B2;
+      color: #A37926;
+    }
+
+    .pdp-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 2.65rem;
+      font-weight: 700;
+      color: #9A3412;
+      line-height: 1.15;
+      margin: 4px 0 6px;
+    }
+
+    .pdp-subtitle {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: #64756A;
+      margin-bottom: 22px;
+    }
+
+    /* Master Artisan Card */
+    .pdp-artisan-box {
+      background-color: #FAF7F1;
+      border: 1px solid #EAE3D5;
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .pdp-artisan-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pdp-artisan-avatar-img {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #D5C7A9;
+    }
+
+    .pdp-artisan-eyebrow {
+      font-size: 0.70rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #A67D28;
+      margin-bottom: 2px;
+    }
+
+    .pdp-artisan-fullname {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #112A20;
+      line-height: 1.1;
+    }
+
+    .pdp-artisan-location {
+      font-size: 0.80rem;
+      color: #63756A;
+    }
+
+    .pdp-artisan-exp-pill {
+      background: #FFFFFF;
+      border: 1px solid #E2DCD0;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #112A20;
+      white-space: nowrap;
+    }
+
+    /* Price Box */
+    .pdp-price-wrap {
+      margin-bottom: 20px;
+    }
+
+    .pdp-price-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #63756A;
+      margin-bottom: 4px;
+    }
+
+    .pdp-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pdp-price-main {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: #112A20;
+      letter-spacing: -0.01em;
+    }
+
+    .pdp-price-mrp {
+      font-size: 1.1rem;
+      color: #8A9990;
+      text-decoration: line-through;
+    }
+
+    .pdp-price-discount {
+      background-color: #EAF7EE;
+      color: #196836;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .pdp-narrative {
+      font-size: 0.92rem;
+      color: #4A5C52;
+      line-height: 1.68;
+      margin-bottom: 24px;
+    }
+
+    /* Specs 2x2 Grid */
+    .pdp-specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .pdp-spec-box {
+      background-color: #FFFFFF;
+      border: 1px solid #E5DFD4;
+      border-radius: 12px;
+      padding: 13px 16px;
+    }
+
+    .pdp-spec-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6E7F75;
+      margin-bottom: 4px;
+    }
+
+    .pdp-spec-val {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #112A20;
+      line-height: 1.3;
+    }
+
+    /* Action Buttons (Flipkart-style 2 Buttons) */
+    .pdp-cta-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* ---- DESIGN PASS: "Warm Craft" button material ---------------------- */
+    :root {
+      --btn-ink: #B4471F;
+      --btn-ink-hover: #A03C19;
+      --btn-ink-deep: #8E3616;
+      --btn-ink-soft: #FBEFE9;
+      --btn-ink-border: #EBD2C5;
+      --btn-ink-glow: rgba(180, 71, 31, 0.26);
+      --btn-sheen: linear-gradient(180deg,
+          rgba(255, 255, 255, 0.30) 0%,
+          rgba(255, 255, 255, 0.08) 42%,
+          rgba(0, 0, 0, 0.16) 100%);
+      --btn-lift:
+        0 1px 1px rgba(28, 16, 11, 0.06),
+        0 2px 5px -1px var(--btn-ink-glow),
+        0 7px 16px -6px var(--btn-ink-glow);
+      --btn-lift-hover:
+        0 1px 1px rgba(28, 16, 11, 0.09),
+        0 4px 9px -2px var(--btn-ink-glow),
+        0 14px 26px -8px var(--btn-ink-glow);
+      --btn-press: inset 0 2px 5px rgba(0, 0, 0, 0.22);
+      --btn-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .btn-pdp-buy-now,
+    .btn-pdp-add-cart {
+      position: relative;
+      z-index: 0;
+      isolation: isolate;
+      overflow: hidden;
+      transition:
+        background-color 0.26s var(--btn-ease),
+        border-color 0.26s var(--btn-ease),
+        color 0.2s var(--btn-ease),
+        box-shadow 0.3s var(--btn-ease),
+        transform 0.22s var(--btn-ease);
+    }
+
+    .btn-pdp-buy-now::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background: var(--btn-sheen);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.34s var(--btn-ease);
+    }
+
+    .btn-pdp-buy-now:hover::after {
+      opacity: 1;
+    }
+
+    .btn-pdp-buy-now {
+      flex: 1.25;
+      background-color: var(--btn-ink);
+      background-image: none;
+      color: #FFFFFF;
+      border: 1px solid var(--btn-ink);
+      border-radius: 9px;
+      height: 52px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: var(--btn-lift);
+    }
+
+    .btn-pdp-buy-now:hover {
+      background-color: var(--btn-ink-hover);
+      border-color: var(--btn-ink-deep);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: var(--btn-lift-hover);
+    }
+
+    .btn-pdp-buy-now:active {
+      transform: translateY(0);
+      background-color: var(--btn-ink-deep);
+      box-shadow: var(--btn-press);
+    }
+
+    .btn-pdp-add-cart {
+      flex: 1;
+      background-color: #FFFFFF;
+      color: #8A3A15;
+      border: 1px solid var(--btn-ink-border);
+      border-radius: 9px;
+      height: 52px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 1px 2px rgba(28, 16, 11, 0.04);
+    }
+
+    .btn-pdp-add-cart:hover {
+      background-color: var(--btn-ink-soft);
+      border-color: var(--btn-ink);
+      color: #7A3211;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px -2px rgba(180, 71, 31, 0.18);
+    }
+
+    .btn-pdp-buy-now:focus-visible,
+    .btn-pdp-add-cart:focus-visible {
+      outline: 2px solid var(--btn-ink);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-pdp-buy-now,
+      .btn-pdp-add-cart,
+      .btn-pdp-buy-now::after {
+        transition-duration: 0.01ms;
+      }
+      .btn-pdp-buy-now:hover,
+      .btn-pdp-add-cart:hover {
+        transform: none;
+      }
+    }
+
+    /* Trust Row */
+    .pdp-trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .pdp-trust-tile {
+      background-color: #FFFFFF;
+      border: 1px solid #E5DFD4;
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .pdp-trust-tile-icon {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+
+    .pdp-trust-tile-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #112A20;
+      margin-bottom: 2px;
+    }
+
+    .pdp-trust-tile-desc {
+      font-size: 0.72rem;
+      color: #64756A;
+    }
+
+    /* Below Product Sections (Suggestions & Recent) */
+    .pdp-suggestions-section,
+    .pdp-recent-section {
+      width: 100%;
+      max-width: min(1440px, 95vw);
+      margin: clamp(36px, 5vw, 64px) auto 0;
+      padding: clamp(28px, 4vw, 48px) clamp(12px, 2.4vw, 28px) 0;
+      border-top: 1px solid #E8E2D5;
+    }
+
+    .pdp-section-header-split {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .pdp-section-kicker {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #A37926;
+      margin-bottom: 4px;
+    }
+
+    .pdp-section-h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: #9A3412;
+      line-height: 1.15;
+    }
+
+    .pdp-artisan-fullname {
+      color: #9A3412;
+    }
+
+    .pdp-clear-recent-btn {
+      background: none;
+      border: 1px solid #D5DDD7;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4A5C52;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pdp-clear-recent-btn:hover {
+      border-color: #112A20;
+      color: #112A20;
+      background-color: #FFFFFF;
+    }
+
+    /* Footer */
+    .pdp-footer {
+      background-color: #112A20;
+      color: #E2EBE5;
+      padding: 48px 0 32px;
+      margin-top: 80px;
+    }
+
+    @media (min-width: 1680px) {
+
+      .pdp-showcase-container,
+      .pdp-suggestions-section,
+      .pdp-recent-section {
+        max-width: min(1600px, 90vw);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .pdp-showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .pdp-gallery-col {
+        position: static;
+      }
+
+      .pdp-nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .pdp-stage-box {
+        aspect-ratio: 1 / 1;
+      }
+
+      .pdp-thumbs-row {
+        grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+        gap: 8px;
+      }
+
+      .pdp-specs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pdp-trust-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pdp-cta-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .pdp-section-h2 {
+        font-size: clamp(1.45rem, 6vw, 1.9rem);
+      }
+    }
+  

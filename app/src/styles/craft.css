@@ -1,0 +1,1147 @@
+/* ==========================================================================
+   HUMAN CRAFT — shared polish layer for the secondary surfaces
+   --------------------------------------------------------------------------
+   Dropped into the user portal, the wholesale portal, the seller workspace and
+   the admin console. Nothing here changes layout, structure, copy or brand
+   colour; it only fixes the things that make an interface read as assembled
+   rather than designed:
+
+     1. Numbers are tabular, so nothing jitters as values update.
+     2. Transitions name their properties instead of "all", and the timing
+        follows the curve the storefront already uses.
+     3. Focus rings are visible and consistent instead of the browser default.
+     4. Nothing is perfectly black: text is warm ink, never #000.
+     5. Buttons share one material — same radius family, same elevation, same
+        press response — whilst each portal keeps its own accent colour.
+     6. Scrollbars, selection, tap highlights and small-caps eyebrows get the
+        same care.
+
+   Every rule is additive. If a portal had no opinion, it now shares ours; if
+   it had one, it keeps it.
+   ========================================================================== */
+
+/* ---- 1. numerals ---------------------------------------------------------
+   Every figure in these panels is money, a count or a date. Proportional
+   digits shift width as they change, which reads as a glitch. */
+:root {
+  --craft-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --craft-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --craft-fast: 140ms;
+  --craft-base: 220ms;
+  --craft-slow: 360ms;
+  --craft-focus: 0 0 0 3px rgba(180, 71, 31, 0.22);
+}
+
+body {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* dates and figures inside tables and stat blocks especially */
+table,
+.stat-value,
+.stat-number,
+.metric-value,
+.kpi-value,
+td,
+th,
+.amount,
+.price,
+.order-id,
+.gi-id {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ---- 2. transitions ------------------------------------------------------
+   "transition: all" animates layout properties too, so a hover can trigger a
+   reflow and a frame drop. Retarget the common offenders to the properties
+   that actually move. */
+.card,
+.panel,
+.tile,
+.stat-card,
+.table-wrap,
+.modal,
+.drawer,
+[class*="card"],
+[class*="panel"] {
+  transition:
+    box-shadow var(--craft-base) var(--craft-ease),
+    border-color var(--craft-base) var(--craft-ease),
+    transform var(--craft-base) var(--craft-ease);
+}
+
+/* ---- 3. focus -----------------------------------------------------------
+   One ring everywhere, in the accent the portals already use, offset so it
+   never sits on top of a border. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--btn-ink, var(--color-gold, #B4471F));
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* the storefront-grade ring on filled controls, where an outline looks bolted on */
+button:not([disabled]):focus-visible {
+  box-shadow: var(--craft-focus);
+}
+
+/* ---- 4. text is warm ink, never pure black ------------------------------
+   Pure black on a warm cream ground reads as an unthemed default. Lift any
+   stray #000 to the nearest brand ink. */
+body {
+  color: #1C2420;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+  letter-spacing: -0.011em;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
+/* ---- 5. button material -------------------------------------------------
+   Same radius family, same elevation, same press. Each portal keeps its own
+   background and text colour — this only unifies the substance. */
+button:not([disabled]),
+input[type="button"],
+input[type="submit"],
+a[class*="btn"],
+[role="button"] {
+  transition:
+    background-color var(--craft-base) var(--craft-ease),
+    border-color var(--craft-base) var(--craft-ease),
+    color var(--craft-base) var(--craft-ease),
+    box-shadow var(--craft-base) var(--craft-ease),
+    transform var(--craft-fast) var(--craft-ease);
+}
+
+button:not([disabled]):active,
+input[type="submit"]:active,
+[role="button"]:active {
+  transform: translateY(1px);
+}
+
+button[disabled],
+input[disabled],
+.btn-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none !important;
+}
+
+/* a press should feel like it meets the surface, not like it bounces */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- 6. the small stuff -------------------------------------------------
+   These are the details nobody names but everybody feels. */
+
+/* selection takes the accent instead of the OS blue */
+::selection {
+  background: rgba(180, 71, 31, 0.16);
+  color: inherit;
+}
+
+/* no grey flash on tap for touch users */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* a scrollbar that belongs to the page */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 42, 32, 0.24) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(17, 42, 32, 0.22);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 42, 32, 0.36);
+  background-clip: content-box;
+}
+
+/* inputs should not zoom on iOS, and fieldsets should read as labelled groups */
+input,
+select,
+textarea {
+  font-size: max(16px, 1rem);
+}
+
+@media (min-width: 641px) {
+  input,
+  select,
+  textarea {
+    font-size: inherit;
+  }
+}
+
+/* the eyebrow label above a panel title — the storefront sets these in
+   letterspaced small caps, the portals were using plain small text */
+.eyebrow,
+.portal-eyebrow,
+.section-eyebrow,
+.kicker {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* status pills and counters read as engraved chips, not flat badges */
+.badge,
+.pill,
+.status-pill,
+.tag,
+.chip,
+[class*="badge"] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* empty states deserve the serif — they are the voice of the room */
+.empty-state h3,
+.empty-state h2,
+.no-results h3,
+.placeholder-title {
+  font-family: var(--font-serif, "Cormorant Garamond", Georgia, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---- inline status icons (replaced the emoji glyphs) --------------------
+   Emoji render as tofu boxes on systems without a colour-emoji font, and even
+   with one they carry their own colour into a tightly controlled palette.
+   These are drawn as single-weight strokes at the same optical size as the
+   caption they sit in. */
+.pdp-ico-shield {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  vertical-align: -0.14em;
+  margin-right: 0.42em;
+  display: inline-block;
+  position: relative;
+  top: -0.02em;
+}
+
+/* in the big stage pill and the breadcrumb, give it a touch more presence */
+.pdp-stage-top-pill .pdp-ico-shield,
+.pdp-bc-right .pdp-ico-shield,
+.pdp-artisan-eyebrow .pdp-ico-shield {
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: 0.45em;
+}
+
+/* the trust tiles use it as a standalone mark, so centre it */
+.pdp-trust-tile-icon .pdp-ico-shield {
+  margin: 0;
+  width: 1.35em;
+  height: 1.35em;
+}
+
+/* ==========================================================================
+   WISHLIST DRAWER — editorial rework
+   --------------------------------------------------------------------------
+   Replaces the flat inline-styled list with a proper catalogue sheet:
+   a ledger header that states the collection, cards that behave as one
+   tappable unit (image + title both open the piece), a quiet meta line
+   in the guild's own voice, and controls that only appear where they
+   belong. Same palette tokens, same data, no new copy claims.
+   ========================================================================== */
+
+/* --- Scrim: closes on outside tap; never touches the chat launcher ------- */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 30, 22, 0.42);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+  z-index: 240;
+}
+
+.drawer-scrim.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* The launcher sits at z-index 950; while a drawer is open it steps back
+   so a tap anywhere outside the panel resolves to the scrim. */
+body.drawer-open .hunarsathi-launcher {
+  z-index: 200;
+  pointer-events: none;
+}
+
+body.drawer-open {
+  overflow: hidden;
+}
+
+/* --- Ledger header ------------------------------------------------------ */
+.drawer-ledger {
+  padding: 22px 22px 16px;
+}
+
+.drawer-ledger-kicker {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--heading-on-dark);
+  margin-bottom: 7px;
+}
+
+.drawer-ledger-title {
+  font-family: var(--font-serif);
+  font-size: 1.52rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+}
+
+.drawer-ledger-meta {
+  margin-top: 10px;
+  font-size: 0.73rem;
+  line-height: 1.5;
+  letter-spacing: 0.012em;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.drawer-ledger-meta b {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+/* hairline that reads as a ledger rule rather than a border */
+#wishlist-drawer .drawer-header {
+  position: relative;
+  padding: 22px 22px 18px;
+  background-color: var(--forest-900);
+}
+
+#wishlist-drawer .drawer-header::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgba(229, 196, 83, 0.5),
+    rgba(229, 196, 83, 0.12) 40%,
+    transparent 78%);
+}
+
+#wishlist-drawer .drawer-close-btn {
+  align-self: flex-start;
+  margin-top: 2px;
+  flex: 0 0 auto;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+#wishlist-drawer .drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: rotate(90deg);
+}
+
+#wishlist-drawer .drawer-body {
+  padding: 0 22px 26px;
+  background-color: #FFFFFF;
+}
+
+/* --- Empty state -------------------------------------------------------- */
+.wl-empty {
+  padding: 52px 6px 40px;
+  text-align: center;
+}
+
+.wl-empty-rule {
+  width: 34px;
+  height: 1px;
+  margin: 0 auto 20px;
+  background-color: var(--border-mid);
+}
+
+.wl-empty-title {
+  font-family: var(--font-serif);
+  font-size: 1.24rem;
+  font-weight: 700;
+  color: var(--forest-900);
+  margin-bottom: 8px;
+}
+
+.wl-empty-note {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-500);
+  max-width: 26ch;
+  margin: 0 auto;
+}
+
+/* --- Item --------------------------------------------------------------- */
+.wl-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.wl-item:last-of-type {
+  border-bottom: 0;
+}
+
+.wl-main {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 17px 0 16px;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: opacity 0.18s ease;
+}
+
+.wl-main:hover .wl-title {
+  color: var(--heading-color);
+}
+
+.wl-main:hover .wl-thumb {
+  border-color: var(--border-mid);
+  box-shadow: 0 6px 16px rgba(17, 42, 32, 0.11);
+}
+
+.wl-main:focus-visible {
+  outline: 2px solid var(--btn-orange);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* thumb: matted like a mounted specimen, not a rounded avatar */
+.wl-thumb {
+  flex: 0 0 auto;
+  width: 72px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-ivory-alt);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.wl-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.wl-guild {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-400);
+  margin-bottom: 5px;
+}
+
+.wl-title {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.03rem;
+  font-weight: 700;
+  line-height: 1.24;
+  color: var(--forest-950);
+  margin-bottom: 5px;
+  transition: color 0.18s ease;
+}
+
+.wl-meta {
+  display: block;
+  font-size: 0.73rem;
+  line-height: 1.45;
+  color: var(--text-500);
+}
+
+.wl-meta .wl-sep {
+  color: var(--border-mid);
+  padding: 0 3px;
+}
+
+.wl-price {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--forest-900);
+  letter-spacing: 0.01em;
+}
+
+.wl-price s {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-400);
+  margin-left: 8px;
+}
+
+/* --- Controls: right rail ----------------------------------------------- */
+.wl-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding-top: 20px;
+  min-width: 106px;
+}
+
+.wl-move {
+  white-space: nowrap;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  border-radius: 3px;
+  color: #FFFFFF;
+  background-image: linear-gradient(135deg, var(--btn-orange), var(--btn-orange-hover));
+  box-shadow: 0 2px 6px rgba(224, 90, 23, 0.24);
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.wl-move:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 5px 14px rgba(224, 90, 23, 0.32);
+}
+
+.wl-remove {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-400);
+  background: none;
+  border: 0;
+  padding: 2px 1px;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.wl-remove:hover,
+.wl-remove:focus-visible {
+  color: var(--danger-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- Drawer foot: quiet assurance line ---------------------------------- */
+.wl-foot {
+  margin-top: 20px;
+  padding-top: 15px;
+  padding-right: 8px;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--text-400);
+  letter-spacing: 0.01em;
+}
+
+/* --- Phones: inset the sheet so the scrim stays tappable ---------------
+   A full-bleed drawer leaves nothing outside it, so "tap anywhere to close"
+   becomes impossible. Keeping ~12% of the screen as scrim gives a real
+   target and reads as a deliberate sheet rather than a cut-off page.      */
+@media (max-width: 500px) {
+  .slide-drawer {
+    width: min(88vw, 440px);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -18px 0 44px rgba(11, 30, 22, 0.28);
+  }
+  #wishlist-drawer .drawer-header,
+  #wishlist-drawer .drawer-body {
+    border-top-left-radius: 16px;
+  }
+  #wishlist-drawer .drawer-body {
+    border-bottom-left-radius: 16px;
+  }
+}
+
+/* --- Narrow phones: stack the controls under the copy ------------------- */
+@media (max-width: 430px) {
+  .wl-item {
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: 15px;
+  }
+  .wl-thumb {
+    width: 64px;
+    height: 78px;
+  }
+  .wl-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    padding-top: 0;
+    margin-left: 78px;
+    min-width: 0;
+  }
+}
+
+/* ==========================================================================
+   COMPARE BAR — steps down while a drawer is open.
+   It floats bottom-left and was sitting on top of the last wishlist row.
+   ========================================================================== */
+/* Toasts fire the moment something is added; if the panel is already open
+   they were stacking over the summary and the checkout button. While a
+   drawer is open the confirmation is redundant — the panel itself is the
+   confirmation — so the stack steps behind the scrim. */
+body.drawer-open .toast-stack {
+  z-index: 235;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+body.drawer-open .compare-floating-bar {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ==========================================================================
+   ACQUISITION BAG — brought onto the same sheet as the wishlist
+   --------------------------------------------------------------------------
+   The bag keeps its logic exactly as it was; only the furniture changes.
+   Line items reuse .wl-item / .wl-main / .wl-thumb / .wl-copy so a piece
+   reads identically whether it is saved or reserved. What is new here is
+   the quantity stepper, the privilege note, and the summary ledger.
+   ========================================================================== */
+
+/* --- Quantity stepper: hairline box, no fills -------------------------- */
+.bag-qty {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border-mid);
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  align-self: stretch;
+  justify-content: space-between;
+}
+
+.bag-qty-btn {
+  width: 26px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--forest-800);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.bag-qty-btn:hover {
+  background-color: var(--forest-50);
+  color: var(--forest-950);
+}
+
+.bag-qty-btn:active {
+  background-color: var(--forest-100);
+}
+
+.bag-qty-val {
+  min-width: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--forest-950);
+  border-left: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the third action in the rail reads quieter than Remove */
+.bag-save {
+  color: var(--forest-700) !important;
+  font-weight: 600 !important;
+}
+
+.bag-save:hover {
+  color: var(--forest-900) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* the cart rail carries three controls, so give it a little more air */
+#cart-drawer .wl-actions {
+  gap: 8px;
+  min-width: 124px;
+}
+
+#cart-drawer .wl-remove {
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+}
+
+#cart-drawer .wl-meta + .wl-meta {
+  margin-top: 1px;
+  font-size: 0.7rem;
+  color: var(--text-400);
+  letter-spacing: 0.02em;
+}
+
+/* --- Privilege note ---------------------------------------------------- */
+.bag-reassure {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 18px;
+  padding: 13px 14px;
+  border-left: 2px solid var(--gold-400);
+  background-color: var(--bg-ivory);
+  font-size: 0.72rem;
+  line-height: 1.62;
+  color: var(--text-700);
+}
+
+.bag-reassure svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--gold-600);
+}
+
+.bag-reassure strong {
+  color: var(--forest-900);
+  font-weight: 700;
+}
+
+/* --- Coupon: a field, not a card --------------------------------------- */
+.bag-coupon {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+}
+
+.bag-coupon-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-400);
+  margin-bottom: 9px;
+}
+
+.bag-coupon-row {
+  display: flex;
+  gap: 8px;
+}
+
+.bag-coupon-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 9px 11px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--forest-950);
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-mid);
+  border-radius: 3px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bag-coupon-row input::placeholder {
+  color: var(--text-400);
+  letter-spacing: 0.01em;
+}
+
+.bag-coupon-row input:focus {
+  outline: none;
+  border-color: var(--forest-600);
+  box-shadow: 0 0 0 3px rgba(41, 102, 78, 0.1);
+}
+
+.bag-coupon-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.bag-chip {
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 5px 9px;
+  color: var(--forest-800);
+  background-color: #FFFFFF;
+  border: 1px dashed var(--border-mid);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+.bag-chip span {
+  color: var(--text-400);
+  font-weight: 500;
+  margin-left: 3px;
+  letter-spacing: 0.01em;
+}
+
+.bag-chip:hover {
+  border-style: solid;
+  border-color: var(--forest-600);
+  background-color: var(--forest-50);
+}
+
+.bag-chip-remove {
+  color: var(--danger-600);
+  border-style: solid;
+  border-color: rgba(201, 59, 43, 0.28);
+}
+
+.bag-chip-remove:hover {
+  background-color: rgba(201, 59, 43, 0.06);
+  border-color: var(--danger-600);
+}
+
+/* --- Saved for later ---------------------------------------------------- */
+.bag-saved {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-mid);
+}
+
+.bag-saved-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-400);
+  margin-bottom: 4px;
+}
+
+.bag-saved-head span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background-color: var(--bg-ivory-alt);
+  color: var(--text-700);
+  font-size: 0.58rem;
+  letter-spacing: 0;
+}
+
+.bag-saved-item .wl-main {
+  padding: 13px 0 12px;
+}
+
+.bag-thumb-sm {
+  width: 52px;
+  height: 63px;
+}
+
+.bag-title-sm {
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.bag-price-sm {
+  margin-top: 5px;
+  font-size: 0.82rem;
+}
+
+.bag-saved-item .wl-actions {
+  padding-top: 15px;
+}
+
+/* --- Summary ledger ---------------------------------------------------- */
+.bag-summary {
+  margin-bottom: 14px;
+}
+
+.bag-sum-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  padding: 3px 0;
+  color: var(--text-700);
+}
+
+.bag-sum-line em {
+  font-style: normal;
+  color: var(--text-400);
+  font-size: 0.72rem;
+}
+
+.bag-sum-line > span:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--forest-950);
+}
+
+.bag-sum-credit,
+.bag-sum-credit > span:last-child {
+  color: var(--success-600);
+}
+
+.bag-sum-strong {
+  font-weight: 600;
+}
+
+.bag-sum-free {
+  color: var(--success-600);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+
+.bag-sum-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 9px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border-mid);
+  font-family: var(--font-serif);
+  font-size: 1.16rem;
+  font-weight: 700;
+  color: var(--forest-950);
+}
+
+.bag-sum-total > span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Checkout: the one filled action in the panel ---------------------- */
+.wl-checkout {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 18px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  background-image: linear-gradient(135deg, var(--btn-orange), var(--btn-orange-dark));
+  box-shadow: 0 3px 12px rgba(224, 90, 23, 0.26);
+  transition: box-shadow 0.2s ease, filter 0.2s ease, transform 0.12s ease;
+}
+
+.wl-checkout:hover:not(:disabled) {
+  filter: brightness(1.07);
+  box-shadow: 0 7px 20px rgba(224, 90, 23, 0.34);
+}
+
+.wl-checkout:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.wl-checkout:disabled {
+  background-image: none;
+  background-color: var(--bg-ivory-alt);
+  color: var(--text-400);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.wl-checkout svg {
+  transition: transform 0.2s ease;
+}
+
+.wl-checkout:hover:not(:disabled) svg {
+  transform: translateX(3px);
+}
+
+#cart-drawer .drawer-footer {
+  padding: 16px 22px 20px;
+  background-color: var(--bg-ivory);
+  border-top: 1px solid var(--border-light);
+}
+
+/* --- Narrow phones ----------------------------------------------------- */
+@media (max-width: 430px) {
+  #cart-drawer .wl-actions {
+    min-width: 0;
+    margin-left: 78px;
+  }
+  .bag-coupon-row {
+    flex-direction: column;
+  }
+  .bag-coupon-row .wl-move {
+    padding: 10px 14px;
+  }
+}
+
+/* ==========================================================================
+   PDP BREADCRUMB — the only navigation on the product page
+   --------------------------------------------------------------------------
+   The secondary section nav was removed from this page: its items are
+   in-page anchors to storefront sections that do not exist here, and it
+   marked "Home" active while the visitor was on a product. What is left is
+   a real trail, so it now carries the weight: Home / Explore / Guild / Piece.
+   ========================================================================== */
+
+.pdp-breadcrumb-bar {
+  position: sticky;
+  top: var(--hdr-h, 0px);
+  z-index: 90;
+  background-color: rgba(247, 245, 238, 0.94);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pdp-bc-sep {
+  color: var(--border-mid);
+  padding: 0 1px;
+}
+
+/* The guild crumb reads as a category, quieter than the piece name but
+   clearly a link — it carries the small-caps tracking of a taxonomy. */
+.pdp-bc-guild {
+  letter-spacing: 0.09em;
+  font-size: 0.94em;
+}
+
+.pdp-bc-current {
+  font-size: 0.94em;
+  letter-spacing: 0.055em;
+}
+
+/* Phones: the trail would wrap to three lines. Keep the two crumbs that
+   orient the visitor and let the piece name truncate — the H1 below already
+   states the title in full. */
+@media (max-width: 720px) {
+  .pdp-breadcrumb-inner {
+    gap: 8px;
+  }
+
+  .pdp-bc-guild,
+  .pdp-bc-guild + .pdp-bc-sep {
+    display: none;
+  }
+
+  .pdp-bc-current {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 52vw;
+  }
+
+  .pdp-bc-right {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .pdp-bc-current {
+    max-width: 40vw;
+  }
+}
+
+/* --- PDP breadcrumb: keep the trail on one line ------------------------- */
+.pdp-bc-left a,
+.pdp-bc-left strong {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .pdp-bc-left {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-width: 0;
+  }
+}
+
+/* --- GI pill vs the wishlist heart --------------------------------------
+   On narrow screens the registry pill grew under the floating heart and the
+   two collided. The pill now stops short of the button and truncates.      */
+@media (max-width: 720px) {
+  .pdp-stage-top-pill {
+    box-sizing: border-box;
+    max-width: calc(100% - 92px);
+    padding: 7px 12px;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 420px) {
+  .pdp-stage-top-pill {
+    max-width: calc(100% - 84px);
+    font-size: 0.63rem;
+    letter-spacing: 0.02em;
+  }
+}

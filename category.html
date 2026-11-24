@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HunarLink — Craft Categories</title>
+    <base href="/hunarlink/category/">
+    <!-- The mark is vector first, with PNG fallbacks for the browsers and
+         platforms that refuse SVG icons (older Safari, iOS home screens). -->
+    <link rel="icon" href="/hunarlink/brand/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/hunarlink/brand/favicon-48.png" sizes="48x48" type="image/png" />
+    <link rel="icon" href="/hunarlink/img/brand/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/hunarlink/brand/favicon-180.png" />
+    <link rel="manifest" href="/hunarlink/site.webmanifest" />
+    <meta name="theme-color" content="#0B3A26" />
+    <meta
+      name="description"
+      content="HunarLink connects verified Jammu &amp; Kashmir master artisans directly with collectors worldwide. GI-certified Pashmina, Kani, walnut wood, silk rugs and papier-mâché, with zero middleman cut."
+    />
+    <!-- Fonts are self-hosted. The previous version linked a stylesheet from
+         fonts.googleapis.com, which blocked first paint on a third-party DNS
+         lookup, TLS handshake and CSS round trip (measured at 2,250 ms). Now
+         the browser already has the connection open, and the two faces used
+         above the fold are preloaded so text paints with the first frame
+         instead of swapping in afterwards.
+
+         Preload only what the first screen needs: the sans at 400 (body) and
+         the serif at 700 (the h1). Everything else loads when used. Each file
+         is the `latin` subset; `latin-ext` and the other weights are declared
+         in fonts.css and fetched on demand. -->
+    <link
+      rel="preload"
+      href="/hunarlink/fonts/PlusJakartaSans-400-normal-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/hunarlink/fonts/CormorantGaramond-700-normal-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <!-- @font-face declarations only, so this one stays render-blocking and
+         cheap: 15 KB, no visual styles, and it prevents a flash of fallback
+         type. -->
+    <link rel="stylesheet" href="/hunarlink/fonts/fonts.css" />
+
+    <!--
+      The main stylesheet is left render-blocking on purpose.
+
+      The audit flags it as the largest blocking resource (144 KB uncompressed,
+      costed at 4,518 ms), and the obvious fix is the media="print"/onload
+      swap. That was tried and reverted: over the wire GitHub Pages serves this
+      file gzipped at ~28 KB, so the swap buys a small real saving and costs a
+      guaranteed flash of unstyled content on every slow connection — the whole
+      page paints as raw text until the CSS lands. A 28 KB blocking request is
+      the better trade.
+
+      The split that *did* help is in App.jsx: portal.css is now its own chunk
+      instead of riding along in this file, which took 79 KB off the storefront
+      entry from 214 KB to 144 KB.
+    -->
+    <script type="module" crossorigin src="/hunarlink/assets/index-CKXR94UW.js"></script>
+    <link rel="modulepreload" crossorigin href="/hunarlink/assets/rolldown-runtime-WkwZ5CU-.js">
+    <link rel="modulepreload" crossorigin href="/hunarlink/assets/vendor-YkKrwFWM.js">
+    <link rel="modulepreload" crossorigin href="/hunarlink/assets/vendor-react-DGBm4Xqo.js">
+    <link rel="modulepreload" crossorigin href="/hunarlink/assets/vendor-router-C537v4F-.js">
+    <link rel="stylesheet" crossorigin href="/hunarlink/assets/index-CsBO24sR.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
